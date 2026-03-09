@@ -1,0 +1,41 @@
+{
+  "app": "NightScout NJ",
+  "scope": "All New Jersey",
+  "frontend_features": [
+    "FUN button",
+    "What are you looking for tonight?",
+    "Town or ZIP search",
+    "Meet in the middle",
+    "Group triangulation for 2-4 people",
+    "Age filter: 20s / 30+ / 40+ / 50+ / Mixed",
+    "Music filter",
+    "Beer max price",
+    "Cocktail max price",
+    "Brunch / Sports Bar / Dancing / Chill / Piano Bar",
+    "Thumbs up / thumbs down with short note"
+  ],
+  "backend_features": [
+    "Google Geocoding for ZIP code to lat/lng",
+    "Google Places Text Search / Nearby Search",
+    "Place Details for phone, hours, rating, website",
+    "20 searches per week limit",
+    "caching for repeated venue requests",
+    "rotation logic so same place is not always shown"
+  ],
+  "signals_layer": {
+    "phase_1": [
+      "Google business info",
+      "venue websites",
+      "manual venue notes"
+    ],
+    "phase_2": [
+      "official API-approved venue social links",
+      "venue-submitted specials/events dashboard"
+    ]
+  },
+  "notes": [
+    "Avoid building generic scraping first.",
+    "Start with NJ only.",
+    "Use approved APIs and venue-provided data where possible."
+  ]
+}
