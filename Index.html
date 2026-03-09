@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>NightScout NJ</title>
+  <script src="icons/fun-button.js"></script>
+</head>
+<body style="font-family:Arial, sans-serif; text-align:center; margin:40px; background:#f7f7f7;">
+
+  <h1>NightScout NJ</h1>
+  <p>Find nightlife options in New Jersey.</p>
+
+  <div style="margin:20px auto; max-width:700px; background:white; padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.08);">
+    
+    <div style="margin-bottom:20px;">
+      <label style="font-weight:bold; display:block; margin-bottom:8px;">Search by town or ZIP</label>
+      <input
+        type="text"
+        id="locationInput"
+        placeholder="Enter town or ZIP"
+        style="padding:12px; width:280px; font-size:16px; border-radius:8px; border:1px solid #ccc;"
+      >
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <label style="font-weight:bold; display:block; margin-bottom:8px;">Meet in the middle</label>
+      <input
+        type="text"
+        id="zipOne"
+        placeholder="First ZIP"
+        style="padding:12px; width:120px; font-size:16px; border-radius:8px; border:1px solid #ccc; margin-right:8px;"
+      >
+      <input
+        type="text"
+        id="zipTwo"
+        placeholder="Second ZIP"
+        style="padding:12px; width:120px; font-size:16px; border-radius:8px; border:1px solid #ccc;"
+      >
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <label style="font-weight:bold; display:block; margin-bottom:8px;">What are you looking for tonight?</label>
+      <select id="questionPrompt" style="padding:10px; width:280px; font-size:16px; border-radius:8px;">
+        <option value="">Select one</option>
+        <option>Date spot</option>
+        <option>Cheap drinks</option>
+        <option>Live music</option>
+        <option>Sports bar</option>
+        <option>Mature crowd</option>
+        <option>Dancing</option>
+        <option>Chill spot</option>
+        <option>Brunch</option>
+        <option>Cocktail lounge</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <label style="font-weight:bold; display:block; margin-bottom:8px;">Price filters</label>
+
+      <select id="beerMax" style="padding:10px; font-size:16px; border-radius:8px; margin:5px;">
+        <option value="">Max beer price</option>
+        <option value="4">$4</option>
+        <option value="5">$5</option>
+        <option value="6">$6</option>
+        <option value="7">$7</option>
+        <option value="8">$8</option>
+      </select>
+
+      <select id="cocktailMax" style="padding:10px; font-size:16px; border-radius:8px; margin:5px;">
+        <option value="">Max cocktail price</option>
+        <option value="8">$8</option>
+        <option value="10">$10</option>
+        <option value="12">$12</option>
+        <option value="14">$14</option>
+        <option value="16">$16</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <button onclick="runNightScout()" style="font-size:20px; padding:14px 28px; border-radius:10px; border:none; cursor:pointer; background:#2563eb; color:white;">
+        Find Fun Near Me
+      </button>
+    </div>
+  </div>
+
+  <div id="resultsBox" style="margin:30px auto; max-width:700px; min-height:160px; background:white; border:1px solid #ddd; border-radius:12px; padding:20px; text-align:left; box-shadow:0 2px 8px rgba(0,0,0,.06);">
+    <strong>Results will appear here.</strong>
+  </div>
+
+  <script>
+    function runNightScout() {
+      const location = document.getElementById("locationInput").value.trim();
+      const zipOne = document.getElementById("zipOne").value.trim();
+      const zipTwo = document.getElementById("zipTwo").value.trim();
+      const question = document.getElementById("questionPrompt").value;
+      const beerMax = document.getElementById("beerMax").value;
+      const cocktailMax = document.getElementById("cocktailMax").value;
+      const resultsBox = document.getElementById("resultsBox");
+
+      let html = "<h2>NightScout Search</h2>";
+
+      if (location) {
+        html += "<p><strong>Town/ZIP:</strong> " + location + "</p>";
+      }
+
+      if (zipOne && zipTwo) {
+        html += "<p><strong>Meet in the middle:</strong> " + zipOne + " + " + zipTwo + "</p>";
+      }
+
+      if (question) {
+        html += "<p><strong>Looking for:</strong> " + question + "</p>";
+      }
+
+      if (beerMax) {
+        html += "<p><strong>Max beer price:</strong> $" + beerMax + "</p>";
+      }
+
+      if (cocktailMax) {
+        html += "<p><strong>Max cocktail price:</strong> $" + cocktailMax + "</p>";
+      }
+
+      html += "<hr>";
+      html += "<p>This simple version is ready for the next step: connecting live venue search and meet-in-the-middle results.</p>";
+
+      resultsBox.innerHTML = html;
+    }
+  </script>
+
+</body>
+</html>
