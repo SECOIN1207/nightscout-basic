@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#071327" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="NightScout V4" />
-  <title>NightScout V4</title>
+  <meta name="apple-mobile-web-app-title" content="NightScout V4 Lite" />
+  <title>NightScout V4 Lite</title>
 
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="styles.css" />
@@ -16,10 +16,9 @@
 
   <style>
     body {
-      padding-bottom: 180px;
+      padding-bottom: 120px;
     }
 
-    /* Floating FUN button */
     #funFloating {
       position: fixed;
       top: 12px;
@@ -39,7 +38,6 @@
       object-fit: contain;
     }
 
-    /* Extra protection so hero icon doesn't show a white box */
     .hero-icon {
       background: transparent !important;
       box-shadow: none !important;
@@ -52,16 +50,10 @@
     .mode-panel.active {
       display: block;
     }
-
-    .mode.active,
-    .chip.selected {
-      outline: 2px solid rgba(117, 192, 255, 0.9);
-    }
   </style>
 </head>
 <body>
 
-  <!-- Floating FUN button -->
   <div id="funFloating" title="Surprise me">
     <img src="icon-192.png" alt="Fun Button" />
   </div>
@@ -71,8 +63,8 @@
       <img class="hero-icon" src="icon-192.png" alt="NightScout icon" />
       <div class="hero-copy">
         <div class="eyebrow">Nightlife intelligence</div>
-        <h1>NightScout V4</h1>
-        <p>Meet in the middle, filter by crowd, music, and price, and surface nearby venues, bars, lounges, pubs, restaurants, live music, and surprise picks.</p>
+        <h1>NightScout V4 Lite</h1>
+        <p>Meet in the middle, filter by crowd, music, venue type, food style, and price, and surface nearby venues before anyone leaves the house.</p>
       </div>
       <div class="hero-pill">NJ beta</div>
     </header>
@@ -87,12 +79,11 @@
 
       <div id="solo-mode" class="mode-panel active">
         <label for="soloQuery">City, state, ZIP, or “near me”</label>
-        <input id="soloQuery" placeholder="07002, Hoboken NJ, or near me" autocomplete="off" />
+        <input id="soloQuery" placeholder="Hoboken NJ, 07022, Weehawken NJ, or near me" autocomplete="off" />
         <div class="seed-row" id="seedCities"></div>
         <div class="button-row">
           <button type="button" class="primary" id="runSolo">Find venues</button>
           <button type="button" class="secondary" id="loadNj">Explore all starter cities</button>
-          <button type="button" class="fun" id="runFun">🎲 Surprise me</button>
         </div>
       </div>
 
@@ -110,7 +101,7 @@
 
       <div id="group-mode" class="mode-panel">
         <label for="groupList">Group locations (up to 10)</label>
-        <textarea id="groupList" rows="5" placeholder="Newark NJ&#10;Hoboken NJ&#10;Fairview NJ&#10;Totowa NJ"></textarea>
+        <textarea id="groupList" rows="5" placeholder="Newark NJ&#10;Fairview NJ&#10;Hoboken NJ&#10;Totowa NJ"></textarea>
         <div class="button-row">
           <button type="button" class="primary" id="runGroup">Triangulate group</button>
         </div>
@@ -118,7 +109,7 @@
 
       <div id="ai-mode" class="mode-panel">
         <label for="aiPrompt">Ask NightScout AI</label>
-        <textarea id="aiPrompt" rows="4" placeholder="Find a 40+ lounge with house music, cocktails under $14, happy hour, and backup spots."></textarea>
+        <textarea id="aiPrompt" rows="4" placeholder="Find a 40+ steakhouse bar with jazz or lounge music, cocktails under $16, and backup spots near Fort Lee."></textarea>
         <div class="button-row">
           <button type="button" class="primary" id="runAi">Build a plan</button>
         </div>
@@ -176,26 +167,24 @@
           <li>Hoboken</li>
           <li>Weehawken</li>
           <li>Fort Lee</li>
-          <li>Glen Rock</li>
-          <li>Fairview</li>
           <li>Hackensack</li>
-          <li>Saddle Brook</li>
-          <li>New Milford</li>
-          <li>Lyndhurst</li>
+          <li>Fairview</li>
           <li>Totowa</li>
+          <li>Saddle Brook</li>
           <li>Montclair</li>
-          <li>Morristown</li>
+          <li>Lyndhurst</li>
           <li>West Orange</li>
+          <li>Morristown</li>
         </ul>
       </article>
 
       <article class="feature card glass">
-        <h3>V4 notes</h3>
+        <h3>Search engine</h3>
         <ul>
-          <li>Solo search for bars, lounges, pubs, taverns, and restaurants</li>
-          <li>Meet-in-the-middle shows midpoint and chosen meetup zone</li>
-          <li>Google search plus starter-city fallback</li>
-          <li>Filters update the results instantly</li>
+          <li>Bars, taverns, pubs, dive bars, lounges</li>
+          <li>Speakeasies, sports bars, pool halls, bar arcades</li>
+          <li>Steakhouses, sushi, Italian, Portuguese, Spanish, Brazilian</li>
+          <li>City-aware fallback logic</li>
         </ul>
       </article>
     </section>
@@ -206,7 +195,7 @@
         <span id="plannerSummary">Choose a mode above.</span>
       </div>
       <div id="plannerResult" class="planner-box muted">
-        NightScout V4 will show a meeting area, midpoint, vibe summary, and suggested venues here.
+        NightScout will show your area, midpoint, vibe summary, and suggested venues here.
       </div>
     </section>
 
@@ -217,14 +206,6 @@
       </div>
       <div id="venueList" class="venue-list"></div>
     </section>
-
-    <nav class="bottom-nav glass">
-      <button type="button" class="nav active">Tonight</button>
-      <button type="button" class="nav">Meet up</button>
-      <button type="button" class="nav">Cheap drinks</button>
-      <button type="button" class="nav">Events</button>
-      <button type="button" class="nav">Saved</button>
-    </nav>
   </div>
 
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYtelX2ShPOmrdE2xKHO_Djf8SV3Dl9gI&libraries=places,geometry"></script>
