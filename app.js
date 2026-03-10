@@ -415,29 +415,7 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
-  function geocodeAddress(address) {
-    return new Promise((resolve, reject) => {
-      if (!window.google || !google.maps || !google.maps.Geocoder) {
-        reject(new Error("Google Geocoder unavailable"));
-        return;
-      }
-      const geocoder = new google.maps.Geocoder();
-      geocoder.geocode({ address }, (results, status) => {
-        if (status !== "OK" || !results?.[0]) {
-          reject(new Error(`Could not locate ${address}`));
-          return;
-        }
-        const loc = results[0].geometry.location;
-        resolve({
-          lat: loc.lat(),
-          lng: loc.lng(),
-          formatted: results[0].formatted_address
-        });
-      });
-    });
-  }
-
-  function nearbyPlaces(center, radiusMeters = 7000) {function findClosestStarterZone(lat, lng) {
+  function findClosestStarterZone(lat, lng) {
   const starterZones = [
     { city: "Hackensack", lat: 40.8862, lng: -74.0435 },
     { city: "Fort Lee", lat: 40.8509, lng: -73.9701 },
@@ -471,55 +449,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
   return closest;
 }
-    return new Promise((resolve, reject) => {
-      if (!window.google || !google.maps || !google.maps.places) {
-        reject(new Error("Google Places unavailable"));
-        return;
-      }
-      const map = new google.maps.Map(document.createElement("div"));
-      const service = new google.maps.places.PlacesService(map);
 
-      service.nearbySearch(
-        {
-          location: new google.maps.LatLng(center.lat, center.lng),
-          radius: radiusMeters,
-          keyword: "bar lounge nightclub live music cocktail brunch dj restaurant",
-          type: "bar"
-        },
-        (results, status) => {
-          if (status !== google.maps.places.PlacesServiceStatus.OK || !results?.length) {
-            reject(new Error("No nearby places found"));
-            return;
-          }
+function nearbyPlaces(center, radiusMeters = 7000) {
+  return new Promise((resolve, reject) => {
+    if (!window.google || !google.maps || !google.maps.places) {
+      reject(new Error("Google Places unavailable"));
+      return;
+    }
 
-          resolve(
-            results.slice(0, 12).map((p) => ({
-              id: `${p.place_id}`,
-              name: p.name || "Unknown venue",
-              city: center.formatted || "Search area",
-              zip: "",
-              address: p.vicinity || "Google result",
-              lat: p.geometry?.location?.lat?.() ?? center.lat,
-              lng: p.geometry?.location?.lng?.() ?? center.lng,
-              type: ["bar", "lounge"],
-              crowd: "Mixed",
-              crowdTags: ["20s", "30+", "40+"],
-              music: ["dj", "top 40", "house"],
-              bestNights: ["Thursday", "Friday", "Saturday"],
-              specials: ["Check venue socials", "Check live specials"],
-              beerMax: 10,
-              cocktailMax: 16,
-              events: ["Live Google result", "Check social pages for current event info"],
-              desc: p.vicinity || "Live venue result from Google Places.",
-              source: "google"
-            }))
-          );
+    const map = new google.maps.Map(document.createElement("div"));
+    const service = new google.maps.places.PlacesService(map);
+
+    service.nearbySearch(
+      {
+        location: new google.maps.LatLng(center.lat, center.lng),
+        radius: radiusMeters,
+        keyword: "bar lounge nightclub live music cocktail brunch dj restaurant",
+        type: "bar"
+      },
+      (results, status) => {
+        if (status !== google.maps.places.PlacesServiceStatus.OK || !results?.length) {
+          reject(new Error("No nearby places found"));
+          return;
         }
-      );
-    });
-  }
 
-  async function runSolo() {
+        resolve(
+          results.slice(0, 12).map((p) => ({
+            id: `${p.place_id}`,
+            name: p.name || "Unknown venue",
+            city: center.formatted || "Search area",
+            zip: "",
+            address: p.vicinity || "Google result",
+            lat: p.geometry?.location?.lat?.() ?? center.lat,
+            lng: p.geometry?.location?.lng?.() ?? center.lng,
+            type: ["bar", "lounge"],
+            crowd: "Mixed",
+            crowdTags: ["20s", "30+", "40+"],
+            music: ["dj", "top 40", "house"],
+            bestNights: ["Thursday", "Friday", "Saturday"],
+            specials: ["Check venue socials", "Check live specials"],
+            beerMax: 10,
+            cocktailMax: 16,
+            events: ["Live Google result", "Check social pages for current event info"],
+            desc: p.vicinity || "Live venue result from Google Places.",
+            source: "google"
+          }))
+        );
+      }
+    );
+  });
+}
     const query = els.soloQuery?.value?.trim();
     if (!query) {
       setPlanner('Enter a ZIP, city, or address.', "Need a search");
