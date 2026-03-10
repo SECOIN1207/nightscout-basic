@@ -437,7 +437,40 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function nearbyPlaces(center, radiusMeters = 7000) {
+  function nearbyPlaces(center, radiusMeters = 7000) {function findClosestStarterZone(lat, lng) {
+  const starterZones = [
+    { city: "Hackensack", lat: 40.8862, lng: -74.0435 },
+    { city: "Fort Lee", lat: 40.8509, lng: -73.9701 },
+    { city: "Fairview", lat: 40.8162, lng: -73.9990 },
+    { city: "Weehawken", lat: 40.7718, lng: -74.0153 },
+    { city: "Hoboken", lat: 40.7433, lng: -74.0288 },
+    { city: "Jersey City", lat: 40.7178, lng: -74.0431 },
+    { city: "Lyndhurst", lat: 40.8120, lng: -74.1243 },
+    { city: "Totowa", lat: 40.9052, lng: -74.2238 },
+    { city: "Montclair", lat: 40.8176, lng: -74.2090 },
+    { city: "Morristown", lat: 40.7968, lng: -74.4815 },
+    { city: "West Orange", lat: 40.7987, lng: -74.2390 },
+    { city: "Saddle Brook", lat: 40.8984, lng: -74.0926 },
+    { city: "New Milford", lat: 40.9351, lng: -74.0201 },
+    { city: "Glen Rock", lat: 40.9629, lng: -74.1329 }
+  ];
+
+  let closest = null;
+  let bestDistance = Infinity;
+
+  starterZones.forEach((zone) => {
+    const d = Math.sqrt(
+      Math.pow(zone.lat - lat, 2) + Math.pow(zone.lng - lng, 2)
+    );
+
+    if (d < bestDistance) {
+      bestDistance = d;
+      closest = zone;
+    }
+  });
+
+  return closest;
+}
     return new Promise((resolve, reject) => {
       if (!window.google || !google.maps || !google.maps.places) {
         reject(new Error("Google Places unavailable"));
@@ -517,35 +550,74 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function runMiddle() {
-    const a = els.midA?.value?.trim();
-    const b = els.midB?.value?.trim();
+  const a = els.midA?.value?.trim();
+  const b = els.midB?.value?.trim();
 
-    if (!a || !b) {
-      setPlanner("Enter both addresses or ZIPs first.", "Need two locations");
-      return;
-    }
-
-    setPlanner(`Calculating the middle spot between "${a}" and "${b}"...`, "Middle search running");
-
-    try {
-      const [locA, locB] = await Promise.all([geocodeAddress(a), geocodeAddress(b)]);
-      const center = {
-        lat: (locA.lat + locB.lat) / 2,
-        lng: (locA.lng + locB.lng) / 2,
-        formatted: `Midpoint between ${locA.formatted} and ${locB.formatted}`
-      };
-      const live = await nearbyPlaces(center, 8000);
-      activeVenues = live.length ? live : [...VENUES];
-      renderResults();
-      setPlanner(`Found venues near the midpoint between ${locA.formatted} and ${locB.formatted}.`, "Middle spot ready");
-      setMode("solo");
-    } catch (err) {
-      activeVenues = [...VENUES];
-      renderResults();
-      setPlanner("Meet-in-the-middle could not fully calculate with Google right now. Showing starter venues instead.", "Fallback results");
-      setMode("solo");
-    }
+  if (!a || !b) {
+    setPlanner("Enter both addresses or ZIPs first.", "Need two locations");
+    return;
   }
+
+  setPlanner(
+    `Calculating the middle spot between "${a}" and "${b}"...`,
+    "Middle search running"
+  );
+
+  try {
+    const [locA, locB] = await Promise.all([
+      geocodeAddress(a),
+      geocodeAddress(b)
+    ]);
+
+    const rawMidLat = (locA.lat + locB.lat) / 2;
+    const rawMidLng = (locA.lng + locB.lng) / 2;
+
+    const bestZone = findClosestStarterZone(rawMidLat, rawMidLng);
+
+    if (!bestZone) {
+      throw new Error("No usable middle zone found");
+    }
+
+    const live = await nearbyPlaces(
+      {
+        lat: bestZone.lat,
+        lng: bestZone.lng,
+        formatted: `${bestZone.city}, NJ`
+      },
+      8000
+    );
+
+    if (live.length) {
+      activeVenues = live;
+    } else {
+      activeVenues = VENUES.filter(
+        (v) => v.city.toLowerCase() === bestZone.city.toLowerCase()
+      );
+
+      if (!activeVenues.length) {
+        activeVenues = [...VENUES];
+      }
+    }
+
+    renderResults();
+
+    setPlanner(
+      `Best meetup zone between ${locA.formatted} and ${locB.formatted}: ${bestZone.city}, NJ. Showing venues near that area based on your filters.`,
+      `Middle zone: ${bestZone.city}`
+    );
+
+    setMode("solo");
+  } catch (err) {
+    console.error("runMiddle error:", err);
+    activeVenues = [...VENUES];
+    renderResults();
+    setPlanner(
+      "Meet-in-the-middle could not fully calculate right now. Showing starter venues instead.",
+      "Fallback results"
+    );
+    setMode("solo");
+  }
+}
 
   async function runGroup() {
     const lines = (els.groupList?.value || "")
