@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#071327" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="NightScout V4" />
+  <title>NightScout V4</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero card glass">
+      <img class="hero-icon" src="icon-192.png" alt="NightScout icon" />
+      <div class="hero-copy">
+        <div class="eyebrow">Nightlife intelligence</div>
+        <h1>NightScout V4</h1>
+        <p>Meet in the middle, filter by crowd, music, and price, and surface nearby venues, live events, and surprise picks.</p>
+      </div>
+      <div class="hero-pill">NJ beta</div>
+    </header>
+
+    <section class="search-panel card glass">
+      <div class="mode-switch">
+        <button class="mode active" data-mode="solo">Solo search</button>
+        <button class="mode" data-mode="middle">Meet in the middle</button>
+        <button class="mode" data-mode="group">Group plan</button>
+        <button class="mode" data-mode="ai">NightScout AI</button>
+      </div>
+
+      <div id="solo-mode" class="mode-panel active">
+        <label for="soloQuery">City, state, ZIP, or “near me”</label>
+        <input id="soloQuery" placeholder="07002, Hoboken NJ, or near me" />
+        <div class="seed-row" id="seedCities"></div>
+        <div class="button-row">
+          <button class="primary" id="runSolo">Find venues</button>
+          <button class="secondary" id="loadNj">Explore all starter cities</button>
+          <button class="fun" id="runFun">🎲 Surprise me</button>
+        </div>
+      </div>
+
+      <div id="middle-mode" class="mode-panel">
+        <label for="midA">Your address or ZIP</label>
+        <input id="midA" placeholder="07002 or Newark NJ" />
+        <label for="midB">Friend’s address or ZIP</label>
+        <input id="midB" placeholder="07030 or Hoboken NJ" />
+        <div class="button-row">
+          <button class="primary" id="runMiddle">Find middle spot</button>
+        </div>
+      </div>
+
+      <div id="group-mode" class="mode-panel">
+        <label for="groupList">Group locations (up to 10)</label>
+        <textarea id="groupList" rows="5" placeholder="Newark NJ&#10;Hoboken NJ&#10;Fairview NJ&#10;Totowa NJ"></textarea>
+        <div class="button-row">
+          <button class="primary" id="runGroup">Triangulate group</button>
+        </div>
+      </div>
+
+      <div id="ai-mode" class="mode-panel">
+        <label for="aiPrompt">Ask NightScout AI</label>
+        <textarea id="aiPrompt" rows="4" placeholder="Find a 40+ lounge with house music, cocktails under $14, and nearby backup spots."></textarea>
+        <div class="button-row">
+          <button class="primary" id="runAi">Build a plan</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="filters card glass">
+      <div class="section-head">
+        <h2>Filters</h2>
+        <span>Tap what matters</span>
+      </div>
+
+      <div class="filter-block">
+        <h3>Day</h3>
+        <div class="chip-group" id="dayFilters"></div>
+      </div>
+      <div class="filter-block">
+        <h3>Crowd</h3>
+        <div class="chip-group" id="crowdFilters"></div>
+      </div>
+      <div class="filter-block">
+        <h3>Venue type</h3>
+        <div class="chip-group" id="venueFilters"></div>
+      </div>
+      <div class="filter-block">
+        <h3>Music</h3>
+        <div class="chip-group" id="musicFilters"></div>
+      </div>
+      <div class="filter-block">
+        <h3>Extras</h3>
+        <div class="chip-group" id="specialFilters"></div>
+      </div>
+
+      <div class="budget-grid">
+        <div>
+          <label for="beerBudget">Max beer price</label>
+          <select id="beerBudget"></select>
+        </div>
+        <div>
+          <label for="cocktailBudget">Max cocktail price</label>
+          <select id="cocktailBudget"></select>
+        </div>
+      </div>
+    </section>
+
+    <section class="feature-grid">
+      <article class="feature card glass">
+        <h3>Starter coverage</h3>
+        <ul>
+          <li>Jersey City</li>
+          <li>Hoboken</li>
+          <li>Weehawken</li>
+          <li>Fort Lee</li>
+          <li>Glen Rock</li>
+          <li>Fairview</li>
+          <li>Hackensack</li>
+          <li>Saddle Brook</li>
+          <li>New Milford</li>
+          <li>Lyndhurst</li>
+          <li>Totowa</li>
+          <li>Montclair</li>
+          <li>Morristown</li>
+          <li>West Orange</li>
+        </ul>
+      </article>
+
+      <article class="feature card glass">
+        <h3>V4 notes</h3>
+        <ul>
+          <li>Meet-in-the-middle math with Google Geocoding</li>
+          <li>Nearby venue search with Google Places</li>
+          <li>Manual event/rating layer stored on device</li>
+          <li>Backup venues near any result</li>
+          <li>Surprise picks and vibe guidance</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="section card glass" id="plannerResultWrap">
+      <div class="section-head">
+        <h2>Planner result</h2>
+        <span id="plannerSummary">Choose a mode above.</span>
+      </div>
+      <div id="plannerResult" class="planner-box muted">
+        NightScout V4 will show a meeting area, vibe summary, event notes, and suggested venues here.
+      </div>
+    </section>
+
+    <section class="section card glass">
+      <div class="section-head">
+        <h2>Venue matches</h2>
+        <span id="resultsCount">Loading starter venues</span>
+      </div>
+      <div id="venueList" class="venue-list"></div>
+    </section>
+
+    <template id="ratingTemplate">
+      <div class="rating-box">
+        <label>Rate this venue</label>
+        <select class="rating-select">
+          <option value="">Select rating</option>
+          <option>Loved it</option>
+          <option>Good</option>
+          <option>Just okay</option>
+          <option>Would not go back</option>
+        </select>
+        <textarea class="rating-note" rows="2" placeholder="Crowd attractive? Too many guys? Not enough women? Worth it?"></textarea>
+        <button type="button" class="save-rating">Save note</button>
+      </div>
+    </template>
+
+    <nav class="bottom-nav glass">
+      <button class="nav active">Tonight</button>
+      <button class="nav">Meet up</button>
+      <button class="nav">Cheap drinks</button>
+      <button class="nav">Events</button>
+      <button class="nav">Saved</button>
+    </nav>
+  </div>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYtelX2ShPOmrdE2xKHO_Djf8SV3Dl9gI&libraries=places"></script>
+  <script src="app.js"></script>
+</body>
+</html>
