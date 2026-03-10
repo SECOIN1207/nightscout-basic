@@ -211,7 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const DAYS = ["Tonight", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const CROWDS = ["All crowds", "20s", "30+", "40+", "50+", "Singles", "Mature crowd"];
-  const VENUE_TYPES = ["All types", "Bar", "Lounge", "Club", "Restaurant", "Restaurant + dancing", "Rooftop", "Music venue", "Brunch"];
+  const VENUE_TYPES = ["All types", "Bar", "Lounge", "Pub", "Restaurant", "Restaurant + dancing", "Rooftop", "Music venue", "Brunch"];
   const MUSIC_TYPES = ["Any music", "Live music", "DJ", "Rock", "Country", "Hip-hop", "House", "Reggaeton", "EDM", "Jazz", "Top 40"];
   const EXTRAS = ["Any extras", "Happy hour", "Cheap drinks", "Live music", "DJ night", "Singles vibe", "Mature crowd", "Brunch"];
   const PRICE_OPTIONS = ["Any", "$5", "$7", "$8", "$9", "$10", "$12", "$14", "$16", "$18", "$20"];
@@ -253,7 +253,8 @@ document.addEventListener("DOMContentLoaded", () => {
     midA: $("midA"),
     midB: $("midB"),
     groupList: $("groupList"),
-    aiPrompt: $("aiPrompt")
+    aiPrompt: $("aiPrompt"),
+    funFloating: $("funFloating")
   };
 
   function setPlanner(text, summary = "Plan updated") {
@@ -265,9 +266,19 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".mode").forEach((btn) => {
       btn.classList.toggle("active", btn.dataset.mode === mode);
     });
+
     document.querySelectorAll(".mode-panel").forEach((panel) => {
       panel.classList.toggle("active", panel.id === `${mode}-mode`);
     });
+  }
+
+  function normalize(text) {
+    return (text || "")
+      .toString()
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .replace(/,/g, "");
   }
 
   function moneyToNumber(value) {
@@ -276,48 +287,61 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderChipGroup(container, list, key) {
     if (!container) return;
+
     container.innerHTML = "";
+
     list.forEach((item) => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "chip" + (filters[key] === item ? " selected" : "");
       btn.textContent = item;
+
       btn.addEventListener("click", () => {
         filters[key] = item;
+        renderFilters();
         renderResults();
       });
+
       container.appendChild(btn);
     });
   }
 
   function renderSelect(selectEl, key) {
     if (!selectEl) return;
+
     selectEl.innerHTML = "";
+
     PRICE_OPTIONS.forEach((value) => {
       const option = document.createElement("option");
       option.value = value;
       option.textContent = value;
       selectEl.appendChild(option);
     });
+
     selectEl.value = filters[key];
-    selectEl.addEventListener("change", () => {
+
+    selectEl.onchange = () => {
       filters[key] = selectEl.value;
       renderResults();
-    });
+    };
   }
 
   function renderSeedCities() {
     if (!els.seedCities) return;
+
     els.seedCities.innerHTML = "";
+
     STARTER_CITIES.forEach((city) => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "seed-chip";
       btn.textContent = city;
+
       btn.addEventListener("click", () => {
         if (els.soloQuery) els.soloQuery.value = city;
         runSolo();
       });
+
       els.seedCities.appendChild(btn);
     });
   }
@@ -335,10 +359,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (filters.venue !== "All types") {
       const selected = filters.venue.toLowerCase();
       const types = v.type.map((t) => t.toLowerCase());
+
       if (selected === "restaurant + dancing") {
-        if (!(types.includes("restaurant") && (types.includes("lounge") || types.includes("bar") || types.includes("dj")))) return false;
+        if (!(types.includes("restaurant") && (types.includes("lounge") || types.includes("bar") || types.includes("dj")))) {
+          return false;
+        }
       } else if (selected === "brunch") {
-        if (!v.specials.join(" ").toLowerCase().includes("brunch")) return false;
+        const text = `${v.specials.join(" ")} ${v.events.join(" ")}`.toLowerCase();
+        if (!text.includes("brunch")) return false;
       } else if (!types.includes(selected)) {
         return false;
       }
@@ -352,6 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (filters.extra !== "Any extras") {
       const extraText = `${v.specials.join(" ")} ${v.events.join(" ")} ${v.crowdTags.join(" ")}`.toLowerCase();
       const extra = filters.extra.toLowerCase();
+
       if (extra === "cheap drinks") {
         if (!(v.beerMax <= 8 || v.cocktailMax <= 13)) return false;
       } else if (!extraText.includes(extra.replace(" vibe", ""))) {
@@ -368,6 +397,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function venueCard(v) {
     const article = document.createElement("article");
     article.className = "venue-card";
+
     article.innerHTML = `
       <div class="venue-top">
         <div>
@@ -376,6 +406,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <div class="status">${v.source === "google" ? "Live" : "Starter"}</div>
       </div>
+
       <div class="info-grid">
         <div class="info"><div class="label">Best nights</div><div class="value">${v.bestNights.join(", ")}</div></div>
         <div class="info"><div class="label">Crowd</div><div class="value">${v.crowd}</div></div>
@@ -384,14 +415,17 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="info"><div class="label">Type</div><div class="value">${v.type.join(", ")}</div></div>
         <div class="info"><div class="label">Specials</div><div class="value">${v.specials.join(" • ")}</div></div>
       </div>
+
       <div class="description">${v.desc}</div>
+
       <div class="event-box">
         <h4>Events / notes</h4>
         <ul class="event-list">${v.events.map((e) => `<li>${e}</li>`).join("")}</ul>
       </div>
+
       <div class="action-row">
         <button type="button" data-map="${encodeURIComponent(v.name + " " + v.address)}">Directions</button>
-        <button type="button" data-search="${encodeURIComponent(v.name + " " + v.city + " nightlife")}">Search</button>
+        <button type="button" data-search="${encodeURIComponent(v.name + " " + v.city + " bar lounge pub nightlife")}">Search</button>
         <button type="button" data-photos="${encodeURIComponent(v.name + " " + v.city + " photos")}">Photos</button>
       </div>
     `;
@@ -399,9 +433,11 @@ document.addEventListener("DOMContentLoaded", () => {
     article.querySelector("[data-map]")?.addEventListener("click", (e) => {
       window.open(`https://www.google.com/maps/search/?api=1&query=${e.currentTarget.dataset.map}`, "_blank");
     });
+
     article.querySelector("[data-search]")?.addEventListener("click", (e) => {
       window.open(`https://www.google.com/search?q=${e.currentTarget.dataset.search}`, "_blank");
     });
+
     article.querySelector("[data-photos]")?.addEventListener("click", (e) => {
       window.open(`https://www.google.com/search?tbm=isch&q=${e.currentTarget.dataset.photos}`, "_blank");
     });
@@ -417,17 +453,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (!els.venueList) return;
+
     els.venueList.innerHTML = "";
 
     if (filtered.length === 0) {
       setPlanner(
-        "No venues matched the current combo. Try raising beer/cocktail max, changing crowd, or switching music/venue type.",
+        "No venues matched the current combo. Try raising beer/cocktail max, changing crowd, venue type, or music.",
         "No matches"
       );
       return;
     }
 
-    filtered.forEach((venue) => els.venueList.appendChild(venueCard(venue)));
+    filtered.forEach((venue) => {
+      els.venueList.appendChild(venueCard(venue));
+    });
   }
 
   function renderFilters() {
@@ -441,31 +480,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function lookupStarterMatches(query) {
-    const q = query.toLowerCase();
-    return VENUES.filter((v) =>
-      `${v.name} ${v.city} ${v.zip} ${v.address}`.toLowerCase().includes(q)
-    );
-  }
+    const q = normalize(query);
 
-  function geocodeAddress(address) {
-    return new Promise((resolve, reject) => {
-      if (!window.google || !google.maps || !google.maps.Geocoder) {
-        reject(new Error("Google Geocoder unavailable"));
-        return;
-      }
-      const geocoder = new google.maps.Geocoder();
-      geocoder.geocode({ address }, (results, status) => {
-        if (status !== "OK" || !results?.[0]) {
-          reject(new Error(`Could not locate ${address}`));
-          return;
-        }
-        const loc = results[0].geometry.location;
-        resolve({
-          lat: loc.lat(),
-          lng: loc.lng(),
-          formatted: results[0].formatted_address
-        });
-      });
+    if (!q) return [];
+
+    return VENUES.filter((v) => {
+      const text = normalize(`${v.name} ${v.city} ${v.zip} ${v.address}`);
+      return text.includes(q);
     });
   }
 
@@ -494,6 +515,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const d = Math.sqrt(
         Math.pow(zone.lat - lat, 2) + Math.pow(zone.lng - lng, 2)
       );
+
       if (d < bestDistance) {
         bestDistance = d;
         closest = zone;
@@ -503,7 +525,53 @@ document.addEventListener("DOMContentLoaded", () => {
     return closest;
   }
 
-  function nearbyPlaces(center, radiusMeters = 7000) {
+  function geocodeAddress(address) {
+    return new Promise((resolve, reject) => {
+      if (!window.google || !google.maps || !google.maps.Geocoder) {
+        reject(new Error("Google Geocoder unavailable"));
+        return;
+      }
+
+      const geocoder = new google.maps.Geocoder();
+
+      geocoder.geocode({ address }, (results, status) => {
+        if (status !== "OK" || !results?.[0]) {
+          reject(new Error(`Could not locate ${address}`));
+          return;
+        }
+
+        const loc = results[0].geometry.location;
+
+        resolve({
+          lat: loc.lat(),
+          lng: loc.lng(),
+          formatted: results[0].formatted_address
+        });
+      });
+    });
+  }
+
+  function reverseGeocode(lat, lng) {
+    return new Promise((resolve) => {
+      if (!window.google || !google.maps || !google.maps.Geocoder) {
+        resolve(null);
+        return;
+      }
+
+      const geocoder = new google.maps.Geocoder();
+
+      geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+        if (status !== "OK" || !results?.[0]) {
+          resolve(null);
+          return;
+        }
+
+        resolve(results[0].formatted_address);
+      });
+    });
+  }
+
+  function textSearchPlaces(center, radiusMeters = 7000) {
     return new Promise((resolve, reject) => {
       if (!window.google || !google.maps || !google.maps.places) {
         reject(new Error("Google Places unavailable"));
@@ -513,12 +581,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const map = new google.maps.Map(document.createElement("div"));
       const service = new google.maps.places.PlacesService(map);
 
-      service.nearbySearch(
+      service.textSearch(
         {
           location: new google.maps.LatLng(center.lat, center.lng),
           radius: radiusMeters,
-          keyword: "bar lounge nightclub live music cocktail brunch dj restaurant",
-          type: "bar"
+          query: "bars lounges pubs taverns restaurants live music nightlife"
         },
         (results, status) => {
           if (status !== google.maps.places.PlacesServiceStatus.OK || !results?.length) {
@@ -527,15 +594,15 @@ document.addEventListener("DOMContentLoaded", () => {
           }
 
           resolve(
-            results.slice(0, 12).map((p) => ({
+            results.slice(0, 16).map((p) => ({
               id: `${p.place_id}`,
               name: p.name || "Unknown venue",
               city: center.formatted || "Search area",
               zip: "",
-              address: p.vicinity || "Google result",
+              address: p.formatted_address || p.vicinity || "Google result",
               lat: p.geometry?.location?.lat?.() ?? center.lat,
               lng: p.geometry?.location?.lng?.() ?? center.lng,
-              type: ["bar", "lounge"],
+              type: ["bar", "lounge", "restaurant"],
               crowd: "Mixed",
               crowdTags: ["20s", "30+", "40+"],
               music: ["dj", "top 40", "house"],
@@ -544,7 +611,7 @@ document.addEventListener("DOMContentLoaded", () => {
               beerMax: 10,
               cocktailMax: 16,
               events: ["Live Google result", "Check social pages for current event info"],
-              desc: p.vicinity || "Live venue result from Google Places.",
+              desc: p.formatted_address || p.vicinity || "Live venue result from Google Places.",
               source: "google"
             }))
           );
@@ -555,12 +622,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function runSolo() {
     const query = els.soloQuery?.value?.trim();
+
     if (!query) {
       setPlanner('Enter a ZIP, city, or address.', "Need a search");
       return;
     }
 
-    setPlanner(`Searching nightlife around "${query}"...`, "Solo search running");
+    setPlanner(`Searching bars, lounges, pubs, taverns, and restaurants around "${query}"...`, "Solo search running");
 
     const starter = lookupStarterMatches(query);
     if (starter.length) {
@@ -572,7 +640,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const center = await geocodeAddress(query);
-      const live = await nearbyPlaces(center, 7000);
+      const live = await textSearchPlaces(center, 8000);
       activeVenues = live;
       renderResults();
       setPlanner(`Found live venues around "${center.formatted}".`, "Live search complete");
@@ -592,10 +660,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    setPlanner(
-      `Calculating the middle spot between "${a}" and "${b}"...`,
-      "Middle search running"
-    );
+    setPlanner(`Calculating the midpoint between "${a}" and "${b}"...`, "Middle search running");
 
     try {
       const [locA, locB] = await Promise.all([
@@ -606,26 +671,27 @@ document.addEventListener("DOMContentLoaded", () => {
       const rawMidLat = (locA.lat + locB.lat) / 2;
       const rawMidLng = (locA.lng + locB.lng) / 2;
 
+      const reverseMid = await reverseGeocode(rawMidLat, rawMidLng);
       const bestZone = findClosestStarterZone(rawMidLat, rawMidLng);
 
       if (!bestZone) {
         throw new Error("No usable middle zone found");
       }
 
-      const live = await nearbyPlaces(
+      const live = await textSearchPlaces(
         {
           lat: bestZone.lat,
           lng: bestZone.lng,
           formatted: `${bestZone.city}, NJ`
         },
-        8000
+        9000
       );
 
       if (live.length) {
         activeVenues = live;
       } else {
         activeVenues = VENUES.filter(
-          (v) => v.city.toLowerCase() === bestZone.city.toLowerCase()
+          (v) => normalize(v.city) === normalize(bestZone.city)
         );
 
         if (!activeVenues.length) {
@@ -636,11 +702,11 @@ document.addEventListener("DOMContentLoaded", () => {
       renderResults();
 
       setPlanner(
-        `Best meetup zone between ${locA.formatted} and ${locB.formatted}: ${bestZone.city}, NJ. Showing venues near that area based on your filters.`,
+        `Midpoint between ${locA.formatted} and ${locB.formatted}: ${reverseMid || `${rawMidLat.toFixed(4)}, ${rawMidLng.toFixed(4)}`}. Best meetup zone: ${bestZone.city}, NJ. Showing venues near that zone based on your filters.`,
         `Middle zone: ${bestZone.city}`
       );
 
-      setMode("solo");
+      setMode("middle");
     } catch (err) {
       console.error("runMiddle error:", err);
       activeVenues = [...VENUES];
@@ -649,7 +715,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "Meet-in-the-middle could not fully calculate right now. Showing starter venues instead.",
         "Fallback results"
       );
-      setMode("solo");
     }
   }
 
@@ -669,26 +734,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const geocoded = await Promise.all(lines.map(geocodeAddress));
+
       const center = {
         lat: geocoded.reduce((sum, x) => sum + x.lat, 0) / geocoded.length,
         lng: geocoded.reduce((sum, x) => sum + x.lng, 0) / geocoded.length,
         formatted: `Central meetup area for ${geocoded.length} people`
       };
-      const live = await nearbyPlaces(center, 9000);
+
+      const live = await textSearchPlaces(center, 10000);
       activeVenues = live.length ? live : [...VENUES];
       renderResults();
-      setPlanner(`Built a central meetup zone for ${geocoded.length} people and found nearby venues.`, "Group center ready");
-      setMode("solo");
+
+      setPlanner(
+        `Built a central meetup point for ${geocoded.length} people and searched bars, lounges, pubs, taverns, restaurants, and nightlife nearby.`,
+        "Group center ready"
+      );
+
+      setMode("group");
     } catch (err) {
       activeVenues = [...VENUES];
       renderResults();
       setPlanner("Group midpoint search hit a Google issue. Showing starter venues instead.", "Fallback results");
-      setMode("solo");
     }
   }
 
   function runAi() {
     const prompt = (els.aiPrompt?.value || "").trim();
+
     if (!prompt) {
       setPlanner("Ask NightScout AI for a crowd, music, price, and area.", "Need a prompt");
       return;
@@ -696,7 +768,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const p = prompt.toLowerCase();
 
-    filters.crowd = p.includes("50") ? "50+" : p.includes("40") ? "40+" : p.includes("30") ? "30+" : p.includes("20") ? "20s" : "All crowds";
+    filters.crowd =
+      p.includes("50") ? "50+" :
+      p.includes("40") ? "40+" :
+      p.includes("30") ? "30+" :
+      p.includes("20") ? "20s" :
+      "All crowds";
+
     filters.music =
       p.includes("hip-hop") ? "Hip-hop" :
       p.includes("reggaeton") ? "Reggaeton" :
@@ -705,40 +783,47 @@ document.addEventListener("DOMContentLoaded", () => {
       p.includes("country") ? "Country" :
       p.includes("jazz") ? "Jazz" :
       p.includes("live music") ? "Live music" :
-      p.includes("dj") ? "DJ" : "Any music";
+      p.includes("dj") ? "DJ" :
+      p.includes("rock") ? "Rock" :
+      "Any music";
 
     filters.venue =
       p.includes("rooftop") ? "Rooftop" :
       p.includes("lounge") ? "Lounge" :
+      p.includes("pub") ? "Pub" :
       p.includes("bar") ? "Bar" :
       p.includes("restaurant") ? "Restaurant" :
       p.includes("music venue") ? "Music venue" :
-      p.includes("brunch") ? "Brunch" : "All types";
+      p.includes("brunch") ? "Brunch" :
+      "All types";
 
     if (p.includes("single")) filters.extra = "Singles vibe";
     else if (p.includes("mature")) filters.extra = "Mature crowd";
     else if (p.includes("happy hour")) filters.extra = "Happy hour";
+    else if (p.includes("live music")) filters.extra = "Live music";
     else filters.extra = "Any extras";
 
     const beerMatch = p.match(/beer[^0-9]*\$?(\d{1,2})/);
     const cocktailMatch = p.match(/cocktail[^0-9]*\$?(\d{1,2})/);
+
     filters.beer = beerMatch ? `$${beerMatch[1]}` : "Any";
     filters.cocktail = cocktailMatch ? `$${cocktailMatch[1]}` : "Any";
 
     renderFilters();
     renderResults();
+
     setPlanner(`AI plan built from: "${prompt}". Filters were updated to match that vibe.`, "AI plan ready");
-    setMode("solo");
+    setMode("ai");
   }
 
   function runFun() {
     const pool = activeVenues.filter(venueMatches);
     const pickFrom = pool.length ? pool : VENUES;
     const pick = pickFrom[Math.floor(Math.random() * pickFrom.length)];
+
     activeVenues = [pick];
     renderResults();
     setPlanner(`Surprise pick: ${pick.name} in ${pick.city}.`, "Surprise mode");
-    setMode("solo");
   }
 
   function loadAllStarterCities() {
@@ -749,7 +834,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.querySelectorAll(".mode").forEach((btn) => {
-    btn.addEventListener("click", () => setMode(btn.dataset.mode));
+    btn.addEventListener("click", () => {
+      setMode(btn.dataset.mode);
+    });
   });
 
   els.runSolo?.addEventListener("click", runSolo);
@@ -758,6 +845,7 @@ document.addEventListener("DOMContentLoaded", () => {
   els.runAi?.addEventListener("click", runAi);
   els.runFun?.addEventListener("click", runFun);
   els.loadNj?.addEventListener("click", loadAllStarterCities);
+  els.funFloating?.addEventListener("click", runFun);
 
   els.soloQuery?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
