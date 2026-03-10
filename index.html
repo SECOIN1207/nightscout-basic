@@ -1,210 +1,869 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#071327" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="NightScout V4 Lite" />
-  <title>NightScout V4 Lite</title>
+document.addEventListener("DOMContentLoaded", () => {
+  const STARTER_CITIES = [
+    "Newark NJ",
+    "Jersey City NJ",
+    "Hoboken NJ",
+    "Weehawken NJ",
+    "Fort Lee NJ",
+    "Hackensack NJ",
+    "Fairview NJ",
+    "Saddle Brook NJ",
+    "New Milford NJ",
+    "Lyndhurst NJ",
+    "Totowa NJ",
+    "Montclair NJ",
+    "Morristown NJ",
+    "West Orange NJ",
+    "Red Bank NJ",
+    "Asbury Park NJ",
+    "Point Pleasant Beach NJ",
+    "Seaside Heights NJ",
+    "Wildwood NJ",
+    "Atlantic City NJ"
+  ];
 
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="icon-192.png" />
-  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  const VENUES = [
+    {
+      id: "grand-vin",
+      name: "Grand Vin",
+      city: "Hoboken",
+      zip: "07030",
+      address: "500 Grand St, Hoboken, NJ 07030",
+      lat: 40.7486,
+      lng: -74.0324,
+      type: ["lounge", "restaurant", "wine bar", "italian"],
+      crowd: "35–55+",
+      crowdTags: ["30+", "40+", "mature crowd", "singles"],
+      music: ["live music", "jazz", "acoustic"],
+      bestNights: ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      specials: ["Happy hour 5–7 PM", "Wine deals", "Live music Tue–Sat"],
+      beerMax: 9,
+      cocktailMax: 16,
+      events: ["Tuesday jazz trio", "Thursday wine special", "Saturday live music"],
+      desc: "Polished Hoboken pick with a stronger 30+ to 50+ crowd and grown-up vibe."
+    },
+    {
+      id: "finnegans",
+      name: "Finnegan's Pub",
+      city: "Hoboken",
+      zip: "07030",
+      address: "734 Willow Ave, Hoboken, NJ 07030",
+      lat: 40.7517,
+      lng: -74.0333,
+      type: ["pub", "tavern", "live music"],
+      crowd: "30–50+",
+      crowdTags: ["30+", "40+"],
+      music: ["live music", "rock"],
+      bestNights: ["Thursday", "Friday", "Saturday"],
+      specials: ["Weekend live bands"],
+      beerMax: 9,
+      cocktailMax: 14,
+      events: ["Friday cover band", "Saturday rock set"],
+      desc: "Classic live-music pub with a broader grown-up crowd and easier vibe."
+    },
+    {
+      id: "mills-tavern",
+      name: "Mills Tavern",
+      city: "Hoboken",
+      zip: "07030",
+      address: "125 Washington St, Hoboken, NJ 07030",
+      lat: 40.7398,
+      lng: -74.0306,
+      type: ["restaurant", "cocktail bar", "lounge", "tavern"],
+      crowd: "30–45+",
+      crowdTags: ["30+", "singles", "dinner"],
+      music: ["dj", "top 40"],
+      bestNights: ["Thursday", "Friday", "Saturday"],
+      specials: ["Dinner + cocktails", "Late-night bar crowd"],
+      beerMax: 10,
+      cocktailMax: 18,
+      events: ["Friday dinner-to-drinks flow", "Saturday late crowd"],
+      desc: "Good crossover pick when you want dinner first and nightlife after."
+    },
+    {
+      id: "mcgoverns",
+      name: "McGovern's Tavern",
+      city: "Newark",
+      zip: "07102",
+      address: "58 New St, Newark, NJ 07102",
+      lat: 40.7369,
+      lng: -74.1706,
+      type: ["tavern", "pub", "irish bar", "restaurant"],
+      crowd: "30–60+",
+      crowdTags: ["30+", "40+", "50+", "mature crowd"],
+      music: ["live music", "rock", "irish music"],
+      bestNights: ["Thursday", "Friday", "Saturday"],
+      specials: ["Classic pub pours", "Occasional live sets"],
+      beerMax: 8,
+      cocktailMax: 13,
+      events: ["Friday band night", "Saturday neighborhood crowd peak"],
+      desc: "Historic Newark tavern with cheaper drinks, mature crowd, and classic pub energy."
+    },
+    {
+      id: "bar-franco",
+      name: "Bar Franco",
+      city: "Montclair",
+      zip: "07042",
+      address: "5 Church St, Montclair, NJ 07042",
+      lat: 40.8177,
+      lng: -74.2102,
+      type: ["lounge", "cocktail bar"],
+      crowd: "30–45+",
+      crowdTags: ["30+", "singles"],
+      music: ["house", "dj", "lounge"],
+      bestNights: ["Friday", "Saturday"],
+      specials: ["Date-night vibe", "Select half-price cocktails"],
+      beerMax: 10,
+      cocktailMax: 17,
+      events: ["Friday lounge DJ", "Saturday late cocktail crowd"],
+      desc: "Stylish Montclair cocktail lounge with polished crowd energy and strong weekend appeal."
+    },
+    {
+      id: "hudson-view",
+      name: "Hudson View Lounge",
+      city: "Weehawken",
+      zip: "07086",
+      address: "1200 Harbor Blvd, Weehawken, NJ 07086",
+      lat: 40.7718,
+      lng: -74.0153,
+      type: ["lounge", "rooftop", "restaurant", "waterfront"],
+      crowd: "30–50+",
+      crowdTags: ["30+", "40+", "mature crowd"],
+      music: ["house", "lounge", "dj"],
+      bestNights: ["Friday", "Saturday"],
+      specials: ["Skyline cocktail hour", "Waterfront vibe"],
+      beerMax: 11,
+      cocktailMax: 19,
+      events: ["Friday skyline DJ", "Saturday cocktail crowd"],
+      desc: "Scenic-style lounge profile for skyline drinks and older social energy."
+    },
+    {
+      id: "son-cubano",
+      name: "Son Cubano",
+      city: "West New York",
+      zip: "07093",
+      address: "40-4 Riverwalk Pl, West New York, NJ 07093",
+      lat: 40.7785,
+      lng: -74.0078,
+      type: ["restaurant", "lounge", "spanish", "latin", "waterfront"],
+      crowd: "30–55+",
+      crowdTags: ["30+", "40+", "mature crowd"],
+      music: ["latin", "lounge", "dj"],
+      bestNights: ["Thursday", "Friday", "Saturday", "Sunday"],
+      specials: ["Waterfront dining", "Cocktail crowd"],
+      beerMax: 9,
+      cocktailMax: 17,
+      events: ["Weekend lounge energy", "Latin dinner crowd"],
+      desc: "Strong date-night and upscale Latin dining option with nightlife crossover."
+    },
+    {
+      id: "fort-lee-social",
+      name: "Fort Lee Social",
+      city: "Fort Lee",
+      zip: "07024",
+      address: "204 Main St, Fort Lee, NJ 07024",
+      lat: 40.8509,
+      lng: -73.9701,
+      type: ["bar", "lounge", "restaurant", "sports bar"],
+      crowd: "30–45+",
+      crowdTags: ["30+", "singles"],
+      music: ["hip-hop", "house", "dj"],
+      bestNights: ["Thursday", "Friday", "Saturday"],
+      specials: ["Thursday DJ happy hour", "Late-night cocktails"],
+      beerMax: 10,
+      cocktailMax: 16,
+      events: ["Thursday after-work social", "Saturday lounge crowd"],
+      desc: "Flexible bar-lounge crossover for bridge-side meetups."
+    },
+    {
+      id: "ventanas",
+      name: "Ventanas Restaurant & Lounge",
+      city: "Fort Lee",
+      zip: "07024",
+      address: "200 Park Ave, Fort Lee, NJ 07024",
+      lat: 40.8516,
+      lng: -73.9735,
+      type: ["restaurant", "lounge", "steakhouse", "rooftop"],
+      crowd: "30–60+",
+      crowdTags: ["30+", "40+", "50+", "mature crowd"],
+      music: ["lounge", "dj"],
+      bestNights: ["Friday", "Saturday", "Sunday"],
+      specials: ["Dinner and cocktails", "Event nights"],
+      beerMax: 10,
+      cocktailMax: 18,
+      events: ["Upscale lounge nights", "Private event energy"],
+      desc: "Big upscale restaurant-lounge destination in the Fort Lee area."
+    },
+    {
+      id: "hackensack-live-room",
+      name: "Hackensack Live Room",
+      city: "Hackensack",
+      zip: "07601",
+      address: "55 Main St, Hackensack, NJ 07601",
+      lat: 40.8862,
+      lng: -74.0435,
+      type: ["music venue", "bar", "live music"],
+      crowd: "25–45+",
+      crowdTags: ["20s", "30+", "40+"],
+      music: ["live music", "rock", "country", "edm"],
+      bestNights: ["Friday", "Saturday"],
+      specials: ["Show-night drink bundles"],
+      beerMax: 9,
+      cocktailMax: 15,
+      events: ["Friday live band schedule", "Saturday rotating event nights"],
+      desc: "Good starter profile for people who care about the music first."
+    },
+    {
+      id: "totowa-night-hub",
+      name: "Totowa Night Hub",
+      city: "Totowa",
+      zip: "07512",
+      address: "650 Union Blvd, Totowa, NJ 07512",
+      lat: 40.9052,
+      lng: -74.2238,
+      type: ["bar", "restaurant", "sports bar"],
+      crowd: "30–50+",
+      crowdTags: ["30+", "40+"],
+      music: ["top 40", "house", "dj"],
+      bestNights: ["Friday", "Saturday"],
+      specials: ["Friday cocktail special", "Saturday social room"],
+      beerMax: 8,
+      cocktailMax: 14,
+      events: ["Friday crowd builder", "Saturday social night"],
+      desc: "Flexible suburban nightlife option with lounge + sports bar mix."
+    },
+    {
+      id: "franklin-steakhouse",
+      name: "Franklin Steakhouse",
+      city: "Fair Lawn",
+      zip: "07410",
+      address: "318 Broadway, Fair Lawn, NJ 07410",
+      lat: 40.9406,
+      lng: -74.1186,
+      type: ["steakhouse", "restaurant", "bar"],
+      crowd: "35–65+",
+      crowdTags: ["30+", "40+", "50+", "mature crowd"],
+      music: ["lounge"],
+      bestNights: ["Thursday", "Friday", "Saturday", "Sunday"],
+      specials: ["Steakhouse dining", "Cocktail bar"],
+      beerMax: 9,
+      cocktailMax: 18,
+      events: ["Dinner crowd", "Weekend social dining"],
+      desc: "A strong upscale North Jersey steakhouse option with bar appeal."
+    },
+    {
+      id: "montclair-social",
+      name: "Montclair Social Lounge",
+      city: "Montclair",
+      zip: "07042",
+      address: "211 Glenridge Ave, Montclair, NJ 07042",
+      lat: 40.8206,
+      lng: -74.2107,
+      type: ["lounge", "cocktail bar"],
+      crowd: "30–50+",
+      crowdTags: ["30+", "40+"],
+      music: ["dj", "house"],
+      bestNights: ["Friday", "Saturday"],
+      specials: ["Cocktail lounge night"],
+      beerMax: 9,
+      cocktailMax: 17,
+      events: ["Friday DJ night"],
+      desc: "Downtown Montclair cocktail lounge style venue."
+    },
+    {
+      id: "morristown-iron-bar",
+      name: "Iron Bar",
+      city: "Morristown",
+      zip: "07960",
+      address: "5 South St, Morristown, NJ 07960",
+      lat: 40.7967,
+      lng: -74.4815,
+      type: ["bar", "live music"],
+      crowd: "25–45+",
+      crowdTags: ["20s", "30+"],
+      music: ["live music", "rock"],
+      bestNights: ["Friday", "Saturday"],
+      specials: ["Live band nights"],
+      beerMax: 9,
+      cocktailMax: 15,
+      events: ["Friday live band", "Saturday music show"],
+      desc: "Well-known Morristown live music bar."
+    },
+    {
+      id: "stone-pony",
+      name: "The Stone Pony",
+      city: "Asbury Park",
+      zip: "07712",
+      address: "913 Ocean Ave, Asbury Park, NJ 07712",
+      lat: 40.2208,
+      lng: -73.9989,
+      type: ["music venue", "bar", "beach bar"],
+      crowd: "20–50+",
+      crowdTags: ["20s", "30+", "40+"],
+      music: ["live music", "rock", "dj"],
+      bestNights: ["Thursday", "Friday", "Saturday", "Sunday"],
+      specials: ["Summer shore crowd", "Outdoor music energy"],
+      beerMax: 10,
+      cocktailMax: 16,
+      events: ["Concert nights", "DJ events", "Summer live sets"],
+      desc: "Iconic Asbury Park live music destination."
+    },
+    {
+      id: "watermark",
+      name: "Watermark",
+      city: "Asbury Park",
+      zip: "07712",
+      address: "800 Ocean Ave, Asbury Park, NJ 07712",
+      lat: 40.2197,
+      lng: -73.9982,
+      type: ["lounge", "cocktail bar", "beach bar", "rooftop", "waterfront"],
+      crowd: "25–50+",
+      crowdTags: ["20s", "30+", "40+"],
+      music: ["dj", "house", "lounge"],
+      bestNights: ["Friday", "Saturday", "Sunday"],
+      specials: ["Oceanfront cocktails", "Shore nightlife"],
+      beerMax: 10,
+      cocktailMax: 18,
+      events: ["Weekend DJs", "Summer crowd"],
+      desc: "Popular oceanfront lounge in Asbury Park."
+    },
+    {
+      id: "jenks",
+      name: "Jenkinson's",
+      city: "Point Pleasant Beach",
+      zip: "08742",
+      address: "300 Ocean Ave, Point Pleasant Beach, NJ 08742",
+      lat: 40.0942,
+      lng: -74.0362,
+      type: ["beach bar", "bar", "club", "boardwalk"],
+      crowd: "20–40+",
+      crowdTags: ["20s", "30+"],
+      music: ["dj", "top 40", "house"],
+      bestNights: ["Friday", "Saturday", "Sunday"],
+      specials: ["Beach crowd", "Boardwalk nightlife"],
+      beerMax: 10,
+      cocktailMax: 16,
+      events: ["Summer DJs", "Beach parties"],
+      desc: "Major Point Pleasant nightlife and beach crowd spot."
+    },
+    {
+      id: "martells",
+      name: "Martell's Tiki Bar",
+      city: "Point Pleasant Beach",
+      zip: "08742",
+      address: "308 Boardwalk, Point Pleasant Beach, NJ 08742",
+      lat: 40.0947,
+      lng: -74.0358,
+      type: ["beach bar", "bar", "tiki bar", "live music"],
+      crowd: "25–50+",
+      crowdTags: ["20s", "30+", "40+"],
+      music: ["live music", "dj", "top 40"],
+      bestNights: ["Friday", "Saturday", "Sunday"],
+      specials: ["Beach bar energy", "Summer drinks"],
+      beerMax: 10,
+      cocktailMax: 16,
+      events: ["Summer bands", "Weekend DJs"],
+      desc: "Big summer Point Pleasant beach bar."
+    },
+    {
+      id: "seaside-night",
+      name: "Seaside Shore Nightspot",
+      city: "Seaside Heights",
+      zip: "08751",
+      address: "101 Boardwalk, Seaside Heights, NJ 08751",
+      lat: 39.9443,
+      lng: -74.0727,
+      type: ["club", "bar", "beach bar"],
+      crowd: "20–40+",
+      crowdTags: ["20s", "30+"],
+      music: ["dj", "house", "top 40"],
+      bestNights: ["Friday", "Saturday", "Sunday"],
+      specials: ["Summer nightlife", "Beach crowd"],
+      beerMax: 9,
+      cocktailMax: 15,
+      events: ["Weekend DJs", "Summer shore nights"],
+      desc: "Seaside-style beach nightlife starter venue."
+    },
+    {
+      id: "wildwood-boardwalk",
+      name: "Wildwood Boardwalk Nightspot",
+      city: "Wildwood",
+      zip: "08260",
+      address: "3500 Boardwalk, Wildwood, NJ 08260",
+      lat: 38.9876,
+      lng: -74.8165,
+      type: ["bar", "club", "beach bar"],
+      crowd: "20–45+",
+      crowdTags: ["20s", "30+"],
+      music: ["dj", "top 40", "house"],
+      bestNights: ["Friday", "Saturday", "Sunday"],
+      specials: ["Boardwalk nightlife", "Summer shore crowd"],
+      beerMax: 9,
+      cocktailMax: 15,
+      events: ["Summer DJs", "Holiday weekends"],
+      desc: "Wildwood summer nightlife starter option."
+    },
+    {
+      id: "ac-casino-club",
+      name: "Atlantic City Casino Club",
+      city: "Atlantic City",
+      zip: "08401",
+      address: "1000 Boardwalk, Atlantic City, NJ 08401",
+      lat: 39.3565,
+      lng: -74.4313,
+      type: ["club", "lounge", "casino", "dj venue"],
+      crowd: "25–55+",
+      crowdTags: ["20s", "30+", "40+"],
+      music: ["dj", "house", "edm"],
+      bestNights: ["Friday", "Saturday", "Sunday"],
+      specials: ["Big-room nightlife", "Casino crowd"],
+      beerMax: 10,
+      cocktailMax: 18,
+      events: ["Guest DJs", "Weekend events"],
+      desc: "Atlantic City nightlife starter profile for casino club energy."
+    }
+  ];
 
-  <style>
-    #funFloating {
-      top: 12px !important;
-      left: 12px !important;
-      width: 84px;
-      height: 84px;
-      border-radius: 18px;
-      overflow: hidden;
-      background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 10px 24px rgba(0,0,0,.35);
-      border: 1px solid rgba(255,255,255,.08);
+  const DAYS = ["Tonight", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const CROWDS = ["All crowds", "20s", "30+", "40+", "50+", "Singles", "Mature crowd"];
+  const VENUE_TYPES = ["All types", "Bar", "Lounge", "Pub", "Tavern", "Dive bar", "Sports bar", "Speakeasy", "Restaurant", "Steakhouse", "Sushi", "Italian", "Portuguese", "Spanish", "Brazilian", "Rooftop", "Music venue", "Pool hall", "Bar arcade", "Beach bar", "Club", "DJ venue", "Brunch"];
+  const MUSIC_TYPES = ["Any music", "Live music", "DJ", "Rock", "Country", "Hip-hop", "House", "Reggaeton", "EDM", "Jazz", "Top 40", "Latin", "Lounge"];
+  const EXTRAS = ["Any extras", "Happy hour", "Cheap drinks", "Live music", "DJ night", "Singles vibe", "Mature crowd", "Brunch", "Date night", "Waterfront", "Beach vibe"];
+  const PRICE_OPTIONS = ["Any", "$5", "$7", "$8", "$9", "$10", "$12", "$14", "$16", "$18", "$20"];
+
+  let filters = { day: "Tonight", crowd: "All crowds", venue: "All types", music: "Any music", extra: "Any extras", beer: "Any", cocktail: "Any" };
+  let activeVenues = [...VENUES];
+  let currentArea = null;
+
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    searchPanel: $("searchPanel"),
+    seedCities: $("seedCities"),
+    plannerResult: $("plannerResult"),
+    plannerSummary: $("plannerSummary"),
+    resultsCount: $("resultsCount"),
+    venueList: $("venueList"),
+    dayFilters: $("dayFilters"),
+    crowdFilters: $("crowdFilters"),
+    venueFilters: $("venueFilters"),
+    musicFilters: $("musicFilters"),
+    specialFilters: $("specialFilters"),
+    beerBudget: $("beerBudget"),
+    cocktailBudget: $("cocktailBudget"),
+    runSolo: $("runSolo"),
+    runMiddle: $("runMiddle"),
+    runGroup: $("runGroup"),
+    runAi: $("runAi"),
+    loadNj: $("loadNj"),
+    soloQuery: $("soloQuery"),
+    midA: $("midA"),
+    midB: $("midB"),
+    groupList: $("groupList"),
+    aiPrompt: $("aiPrompt"),
+    funFloating: $("funFloating")
+  };
+
+  function setPlanner(text, summary = "Plan updated") {
+    if (els.plannerResult) els.plannerResult.textContent = text;
+    if (els.plannerSummary) els.plannerSummary.textContent = summary;
+  }
+
+  function setBusy(state) {
+    [els.runSolo, els.runMiddle, els.runGroup, els.runAi, els.loadNj].forEach((btn) => { if (btn) btn.disabled = state; });
+    if (els.searchPanel) els.searchPanel.classList.toggle("loading-state", state);
+  }
+
+  function setMode(mode) {
+    document.querySelectorAll(".mode").forEach((btn) => btn.classList.toggle("active", btn.dataset.mode === mode));
+    document.querySelectorAll(".mode-panel").forEach((panel) => panel.classList.toggle("active", panel.id === `${mode}-mode`));
+  }
+
+  function moneyToNumber(value) {
+    return value === "Any" ? Infinity : Number(value.replace("$", ""));
+  }
+
+  function scoreVenue(v) {
+    let score = 0;
+    if (currentArea?.city && normalize(v.city) === normalize(currentArea.city)) score += 40;
+    if (currentArea?.zip && normalize(v.zip) === normalize(currentArea.zip)) score += 40;
+    if (filters.music !== "Any music" && v.music.map(normalize).includes(normalize(filters.music))) score += 10;
+    if (filters.venue !== "All types" && v.type.map(normalize).includes(normalize(filters.venue))) score += 10;
+    const desc = normalize(v.desc);
+    if (desc.includes("dj")) score += 4;
+    if (desc.includes("beach")) score += 4;
+    if (desc.includes("waterfront")) score += 3;
+    return score;
+  }
+
+  function venueMatches(v) {
+    if (filters.day !== "Tonight" && !v.bestNights.includes(filters.day)) return false;
+    if (filters.crowd === "20s" && !v.crowdTags.includes("20s")) return false;
+    if (filters.crowd === "30+" && !v.crowdTags.includes("30+")) return false;
+    if (filters.crowd === "40+" && !v.crowdTags.includes("40+")) return false;
+    if (filters.crowd === "50+" && !v.crowdTags.includes("50+")) return false;
+    if (filters.crowd === "Singles" && !v.crowdTags.includes("singles")) return false;
+    if (filters.crowd === "Mature crowd" && !v.crowdTags.includes("mature crowd")) return false;
+
+    if (filters.venue !== "All types") {
+      const selected = normalize(filters.venue);
+      const types = v.type.map(normalize);
+      const combined = normalize(`${v.type.join(" ")} ${v.desc}`);
+      if (selected === "brunch") {
+        const text = normalize(`${v.specials.join(" ")} ${v.events.join(" ")}`);
+        if (!text.includes("brunch")) return false;
+      } else if (!types.includes(selected) && !combined.includes(selected)) return false;
     }
 
-    #funFloating img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      background: #000 !important;
+    if (filters.music !== "Any music") {
+      const selected = normalize(filters.music);
+      if (!v.music.map(normalize).includes(selected)) return false;
     }
 
-    @media (max-width: 900px) {
-      #funFloating {
-        width: 76px;
-        height: 76px;
+    if (filters.extra !== "Any extras") {
+      const extraText = normalize(`${v.specials.join(" ")} ${v.events.join(" ")} ${v.crowdTags.join(" ")} ${v.desc}`);
+      const extra = normalize(filters.extra);
+
+      if (extra === "cheap drinks") {
+        if (!(v.beerMax <= 8 || v.cocktailMax <= 13)) return false;
+      } else if (extra === "beach vibe") {
+        if (!extraText.includes("beach") && !extraText.includes("shore") && !extraText.includes("boardwalk") && !extraText.includes("waterfront")) return false;
+      } else if (!extraText.includes(extra.replace(" vibe", ""))) return false;
+    }
+
+    if (v.beerMax > moneyToNumber(filters.beer)) return false;
+    if (v.cocktailMax > moneyToNumber(filters.cocktail)) return false;
+
+    if (currentArea) {
+      const cityMatch = currentArea.city && normalize(v.city) === normalize(currentArea.city);
+      const zipMatch = currentArea.zip && normalize(v.zip) === normalize(currentArea.zip);
+      if (!cityMatch && !zipMatch) return false;
+    }
+
+    return true;
+  }
+
+  function venueCard(v) {
+    const article = document.createElement("article");
+    article.className = "venue-card";
+    article.innerHTML = `
+      <div class="venue-top">
+        <div>
+          <h3 class="venue-title">${v.name}</h3>
+          <div class="address">${v.city} • ${v.address}</div>
+        </div>
+        <div class="status">${v.source === "google" ? "Live" : "Starter"}</div>
+      </div>
+      <div class="info-grid">
+        <div class="info"><div class="label">Best nights</div><div class="value">${v.bestNights.join(", ")}</div></div>
+        <div class="info"><div class="label">Crowd</div><div class="value">${v.crowd}</div></div>
+        <div class="info"><div class="label">Music</div><div class="value">${v.music.join(", ")}</div></div>
+        <div class="info"><div class="label">Typical prices</div><div class="value">Beer up to $${v.beerMax} • Cocktails up to $${v.cocktailMax}</div></div>
+        <div class="info"><div class="label">Type</div><div class="value">${v.type.join(", ")}</div></div>
+        <div class="info"><div class="label">Specials</div><div class="value">${v.specials.join(" • ")}</div></div>
+      </div>
+      <div class="description">${v.desc}</div>
+      <div class="event-box">
+        <h4>Events / notes</h4>
+        <ul class="event-list">${v.events.map((e) => `<li>${e}</li>`).join("")}</ul>
+      </div>
+      <div class="action-row">
+        <button type="button" data-map="${encodeURIComponent(v.name + " " + v.address)}">Directions</button>
+        <button type="button" data-search="${encodeURIComponent(v.name + " " + v.city + " nightlife dj events")}">Search</button>
+        <button type="button" data-photos="${encodeURIComponent(v.name + " " + v.city + " photos")}">Photos</button>
+      </div>
+    `;
+    article.querySelector("[data-map]")?.addEventListener("click", (e) => window.open(`https://www.google.com/maps/search/?api=1&query=${e.currentTarget.dataset.map}`, "_blank"));
+    article.querySelector("[data-search]")?.addEventListener("click", (e) => window.open(`https://www.google.com/search?q=${e.currentTarget.dataset.search}`, "_blank"));
+    article.querySelector("[data-photos]")?.addEventListener("click", (e) => window.open(`https://www.google.com/search?tbm=isch&q=${e.currentTarget.dataset.photos}`, "_blank"));
+    return article;
+  }
+
+  function renderResults() {
+    const filtered = activeVenues.filter(venueMatches).sort((a, b) => scoreVenue(b) - scoreVenue(a));
+    if (els.resultsCount) els.resultsCount.textContent = `${filtered.length} venue ${filtered.length === 1 ? "match" : "matches"}`;
+    if (!els.venueList) return;
+    els.venueList.innerHTML = "";
+    if (filtered.length === 0) {
+      setPlanner("No venues matched the current filters in that exact area. Try changing crowd, venue type, music, or price.", "No matches");
+      return;
+    }
+    filtered.forEach((venue) => els.venueList.appendChild(venueCard(venue)));
+  }
+
+  function renderChipGroup(container, list, key) {
+    if (!container) return;
+    container.innerHTML = "";
+    list.forEach((item) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "chip" + (filters[key] === item ? " selected" : "");
+      btn.textContent = item;
+      btn.addEventListener("click", () => {
+        filters[key] = item;
+        renderFilters();
+        renderResults();
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  function renderSelect(selectEl, key) {
+    if (!selectEl) return;
+    selectEl.innerHTML = "";
+    PRICE_OPTIONS.forEach((value) => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = value;
+      selectEl.appendChild(option);
+    });
+    selectEl.value = filters[key];
+    selectEl.onchange = () => {
+      filters[key] = selectEl.value;
+      renderResults();
+    };
+  }
+
+  function renderSeedCities() {
+    if (!els.seedCities) return;
+    els.seedCities.innerHTML = "";
+    STARTER_CITIES.forEach((city) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "seed-chip";
+      btn.textContent = city;
+      btn.addEventListener("click", () => {
+        els.soloQuery.value = city;
+        runSolo();
+      });
+      els.seedCities.appendChild(btn);
+    });
+  }
+
+  function renderFilters() {
+    renderChipGroup(els.dayFilters, DAYS, "day");
+    renderChipGroup(els.crowdFilters, CROWDS, "crowd");
+    renderChipGroup(els.venueFilters, VENUE_TYPES, "venue");
+    renderChipGroup(els.musicFilters, MUSIC_TYPES, "music");
+    renderChipGroup(els.specialFilters, EXTRAS, "extra");
+    renderSelect(els.beerBudget, "beer");
+    renderSelect(els.cocktailBudget, "cocktail");
+  }
+
+  async function runSolo() {
+    const query = els.soloQuery?.value?.trim();
+    if (!query) {
+      setPlanner('Enter a ZIP, city, or address.', "Need a search");
+      return;
+    }
+    setBusy(true);
+    setPlanner(`Searching exact area for "${query}" across bars, lounges, clubs, restaurants, beach bars, DJs, and events...`, "Solo search running");
+    try {
+      const area = await geocodeAddress(query);
+      currentArea = area;
+      const live = await searchLiveArea(area, 14000);
+      if (live.length) {
+        activeVenues = live;
+        renderResults();
+        setPlanner(`Found live venues and event-style nightlife results in ${area.city || area.zip || area.formatted}.`, "Live search complete");
+        return;
       }
+      const localStarter = starterMatchesArea(area);
+      if (localStarter.length) {
+        activeVenues = localStarter;
+        renderResults();
+        setPlanner(`Live search was thin, so showing starter venues only in ${area.city || area.zip}.`, "Local starter fallback");
+        return;
+      }
+      activeVenues = [];
+      renderResults();
+      setPlanner(`No venues found yet for "${query}".`, "No results");
+    } catch (err) {
+      currentArea = null;
+      activeVenues = [];
+      renderResults();
+      setPlanner(`Could not search "${query}" right now. Check the Google setup or try a full town name and state.`, "Search issue");
+    } finally {
+      setBusy(false);
     }
-  </style>
-</head>
-<body>
-  <div id="funFloating" title="Surprise me">
-    <img src="icon-192.png" alt="Fun Button" />
-  </div>
+  }
 
-  <div class="app-shell">
-    <header class="hero card glass">
-      <div class="hero-copy">
-        <div class="eyebrow">Nightlife intelligence</div>
-        <h1>NightScout V4 Lite</h1>
-        <p>
-          Meet in the middle, filter by crowd, music, venue type, food style, and price,
-          then surface nearby bars, lounges, taverns, pubs, sports bars, steakhouses,
-          sushi spots, live music venues, and more.
-        </p>
-      </div>
-      <div class="hero-pill">NJ beta</div>
-    </header>
+  async function runMiddle() {
+    const a = els.midA?.value?.trim();
+    const b = els.midB?.value?.trim();
+    if (!a || !b) {
+      setPlanner("Enter both addresses or ZIPs first.", "Need two locations");
+      return;
+    }
+    setBusy(true);
+    setPlanner(`Calculating the midpoint between "${a}" and "${b}"...`, "Middle search running");
+    try {
+      const [locA, locB] = await Promise.all([geocodeAddress(a), geocodeAddress(b)]);
+      const rawMidLat = (locA.lat + locB.lat) / 2;
+      const rawMidLng = (locA.lng + locB.lng) / 2;
+      const midpoint = await reverseGeocode(rawMidLat, rawMidLng);
+      const zone = midpoint && (midpoint.city || midpoint.zip)
+        ? { lat: rawMidLat, lng: rawMidLng, city: midpoint.city, zip: midpoint.zip, formatted: midpoint.formatted }
+        : (() => {
+            const z = findClosestStarterZone(rawMidLat, rawMidLng);
+            return { lat: rawMidLat, lng: rawMidLng, city: z?.city || "", zip: "", formatted: z?.city ? `${z.city}, NJ` : "" };
+          })();
 
-    <section class="search-panel card glass" id="searchPanel">
-      <div class="mode-switch">
-        <button type="button" class="mode active" data-mode="solo">Solo search</button>
-        <button type="button" class="mode" data-mode="middle">Meet in the middle</button>
-        <button type="button" class="mode" data-mode="group">Group plan</button>
-        <button type="button" class="mode" data-mode="ai">NightScout AI</button>
-      </div>
+      currentArea = zone;
+      const live = await searchLiveArea(zone, 15000);
+      if (live.length) {
+        activeVenues = live;
+        renderResults();
+        setPlanner(`Midpoint between ${locA.formatted} and ${locB.formatted}: ${zone.formatted || `${rawMidLat.toFixed(4)}, ${rawMidLng.toFixed(4)}`}. Showing venues, DJs, and nightlife only in that midpoint area.`, `Middle zone: ${zone.city || zone.zip || "calculated area"}`);
+        setMode("middle");
+        return;
+      }
+      const localStarter = starterMatchesArea(zone);
+      activeVenues = localStarter;
+      renderResults();
+      setPlanner(`Midpoint between ${locA.formatted} and ${locB.formatted}: ${zone.formatted || `${rawMidLat.toFixed(4)}, ${rawMidLng.toFixed(4)}`}. Live results were thin, so only local midpoint-area starters are shown.`, `Middle zone: ${zone.city || zone.zip || "calculated area"}`);
+      setMode("middle");
+    } catch (err) {
+      currentArea = null;
+      activeVenues = [];
+      renderResults();
+      setPlanner("Meet-in-the-middle could not calculate right now. Check the addresses and Google setup.", "Middle search issue");
+    } finally {
+      setBusy(false);
+    }
+  }
 
-      <div id="solo-mode" class="mode-panel active">
-        <label for="soloQuery">City, state, ZIP, or “near me”</label>
-        <input id="soloQuery" placeholder="Newark NJ, Hoboken NJ, 07102, or near me" autocomplete="off" />
-        <div class="seed-row" id="seedCities"></div>
-        <div class="button-row">
-          <button type="button" class="primary" id="runSolo">Find venues</button>
-          <button type="button" class="secondary" id="loadNj">Explore all starter cities</button>
-        </div>
-      </div>
+  async function runGroup() {
+    const lines = (els.groupList?.value || "").split(/\n+/).map((x) => x.trim()).filter(Boolean).slice(0, 10);
+    if (lines.length < 2) {
+      setPlanner("Enter at least 2 group locations.", "Need more locations");
+      return;
+    }
+    setBusy(true);
+    setPlanner(`Triangulating ${lines.length} group locations...`, "Group search running");
+    try {
+      const geocoded = await Promise.all(lines.map(geocodeAddress));
+      const centerLat = geocoded.reduce((sum, x) => sum + x.lat, 0) / geocoded.length;
+      const centerLng = geocoded.reduce((sum, x) => sum + x.lng, 0) / geocoded.length;
+      const midpoint = await reverseGeocode(centerLat, centerLng);
+      const zone = midpoint && (midpoint.city || midpoint.zip)
+        ? { lat: centerLat, lng: centerLng, city: midpoint.city, zip: midpoint.zip, formatted: midpoint.formatted }
+        : (() => {
+            const z = findClosestStarterZone(centerLat, centerLng);
+            return { lat: centerLat, lng: centerLng, city: z?.city || "", zip: "", formatted: z?.city ? `${z.city}, NJ` : "" };
+          })();
 
-      <div id="middle-mode" class="mode-panel">
-        <label for="midA">Your address or ZIP</label>
-        <input id="midA" placeholder="137 Fleming Ave, Newark NJ 07105" autocomplete="off" />
+      currentArea = zone;
+      const live = await searchLiveArea(zone, 15000);
+      if (live.length) {
+        activeVenues = live;
+        renderResults();
+        setPlanner(`Group midpoint for ${geocoded.length} people: ${zone.formatted || `${centerLat.toFixed(4)}, ${centerLng.toFixed(4)}`}. Showing venues, DJs, and nightlife only in that exact midpoint area.`, "Group center ready");
+        setMode("group");
+        return;
+      }
+      const localStarter = starterMatchesArea(zone);
+      activeVenues = localStarter;
+      renderResults();
+      setPlanner(`Group midpoint for ${geocoded.length} people: ${zone.formatted || `${centerLat.toFixed(4)}, ${centerLng.toFixed(4)}`}. Live results were thin, so only local midpoint-area starters are shown.`, "Group center ready");
+      setMode("group");
+    } catch (err) {
+      currentArea = null;
+      activeVenues = [];
+      renderResults();
+      setPlanner("Group triangulation could not calculate right now. Check the locations and Google setup.", "Group search issue");
+    } finally {
+      setBusy(false);
+    }
+  }
 
-        <label for="midB">Friend’s address or ZIP</label>
-        <input id="midB" placeholder="376 Henry St, Fairview NJ 07022" autocomplete="off" />
+  function runAi() {
+    const prompt = (els.aiPrompt?.value || "").trim();
+    if (!prompt) {
+      setPlanner("Ask NightScout AI for a crowd, music, price, and area.", "Need a prompt");
+      return;
+    }
+    const p = prompt.toLowerCase();
 
-        <div class="button-row">
-          <button type="button" class="primary" id="runMiddle">Find middle spot</button>
-        </div>
-      </div>
+    filters.crowd = p.includes("50") ? "50+" : p.includes("40") ? "40+" : p.includes("30") ? "30+" : p.includes("20") ? "20s" : "All crowds";
+    filters.music = p.includes("hip-hop") ? "Hip-hop" : p.includes("reggaeton") ? "Reggaeton" : p.includes("house") ? "House" : p.includes("edm") ? "EDM" : p.includes("country") ? "Country" : p.includes("jazz") ? "Jazz" : p.includes("live music") ? "Live music" : p.includes("dj") ? "DJ" : p.includes("rock") ? "Rock" : p.includes("latin") ? "Latin" : p.includes("lounge") ? "Lounge" : "Any music";
 
-      <div id="group-mode" class="mode-panel">
-        <label for="groupList">Group locations (up to 10)</label>
-        <textarea id="groupList" rows="5" placeholder="Newark NJ&#10;Fairview NJ&#10;Hoboken NJ&#10;Totowa NJ"></textarea>
-        <div class="button-row">
-          <button type="button" class="primary" id="runGroup">Triangulate group</button>
-        </div>
-      </div>
+    filters.venue =
+      p.includes("beach bar") ? "Beach bar" :
+      p.includes("club") ? "Club" :
+      p.includes("dj venue") ? "DJ venue" :
+      p.includes("speakeasy") ? "Speakeasy" :
+      p.includes("sports bar") ? "Sports bar" :
+      p.includes("pool hall") ? "Pool hall" :
+      p.includes("bar arcade") ? "Bar arcade" :
+      p.includes("steakhouse") ? "Steakhouse" :
+      p.includes("sushi") ? "Sushi" :
+      p.includes("italian") ? "Italian" :
+      p.includes("portuguese") ? "Portuguese" :
+      p.includes("spanish") ? "Spanish" :
+      p.includes("brazilian") ? "Brazilian" :
+      p.includes("rooftop") ? "Rooftop" :
+      p.includes("lounge") ? "Lounge" :
+      p.includes("tavern") ? "Tavern" :
+      p.includes("pub") ? "Pub" :
+      p.includes("bar") ? "Bar" :
+      p.includes("restaurant") ? "Restaurant" :
+      p.includes("music venue") ? "Music venue" :
+      p.includes("brunch") ? "Brunch" :
+      "All types";
 
-      <div id="ai-mode" class="mode-panel">
-        <label for="aiPrompt">Ask NightScout AI</label>
-        <textarea id="aiPrompt" rows="4" placeholder="Find a 40+ sports bar with cheap drinks and live music in Fort Lee tonight."></textarea>
-        <div class="button-row">
-          <button type="button" class="primary" id="runAi">Build a plan</button>
-        </div>
-      </div>
-    </section>
+    if (p.includes("single")) filters.extra = "Singles vibe";
+    else if (p.includes("mature")) filters.extra = "Mature crowd";
+    else if (p.includes("happy hour")) filters.extra = "Happy hour";
+    else if (p.includes("live music")) filters.extra = "Live music";
+    else if (p.includes("date")) filters.extra = "Date night";
+    else if (p.includes("waterfront")) filters.extra = "Waterfront";
+    else if (p.includes("beach")) filters.extra = "Beach vibe";
+    else filters.extra = "Any extras";
 
-    <section class="filters card glass">
-      <div class="section-head">
-        <h2>Filters</h2>
-        <span>Tap what matters</span>
-      </div>
+    const beerMatch = p.match(/beer[^0-9]*\$?(\d{1,2})/);
+    const cocktailMatch = p.match(/cocktail[^0-9]*\$?(\d{1,2})/);
+    filters.beer = beerMatch ? `$${beerMatch[1]}` : "Any";
+    filters.cocktail = cocktailMatch ? `$${cocktailMatch[1]}` : "Any";
 
-      <div class="filter-block">
-        <h3>Day</h3>
-        <div class="chip-group" id="dayFilters"></div>
-      </div>
+    renderFilters();
+    renderResults();
+    setPlanner(`AI plan built from: "${prompt}". Filters were updated to match that vibe.`, "AI plan ready");
+    setMode("ai");
+  }
 
-      <div class="filter-block">
-        <h3>Crowd</h3>
-        <div class="chip-group" id="crowdFilters"></div>
-      </div>
+  function runFun() {
+    const pool = activeVenues.filter(venueMatches);
+    const pickFrom = pool.length ? pool : activeVenues.length ? activeVenues : VENUES;
+    if (!pickFrom.length) return;
+    const pick = pickFrom[Math.floor(Math.random() * pickFrom.length)];
+    activeVenues = [pick];
+    currentArea = { city: pick.city, zip: pick.zip };
+    renderResults();
+    setPlanner(`Surprise pick: ${pick.name} in ${pick.city}.`, "Surprise mode");
+  }
 
-      <div class="filter-block">
-        <h3>Venue type</h3>
-        <div class="chip-group" id="venueFilters"></div>
-      </div>
+  function loadAllStarterCities() {
+    currentArea = null;
+    activeVenues = [...VENUES];
+    renderResults();
+    setPlanner("Loaded all starter NJ venues.", "Starter venues loaded");
+    setMode("solo");
+  }
 
-      <div class="filter-block">
-        <h3>Music</h3>
-        <div class="chip-group" id="musicFilters"></div>
-      </div>
+  document.querySelectorAll(".mode").forEach((btn) => btn.addEventListener("click", () => setMode(btn.dataset.mode)));
+  els.runSolo?.addEventListener("click", runSolo);
+  els.runMiddle?.addEventListener("click", runMiddle);
+  els.runGroup?.addEventListener("click", runGroup);
+  els.runAi?.addEventListener("click", runAi);
+  els.loadNj?.addEventListener("click", loadAllStarterCities);
+  els.funFloating?.addEventListener("click", runFun);
 
-      <div class="filter-block">
-        <h3>Extras</h3>
-        <div class="chip-group" id="specialFilters"></div>
-      </div>
+  els.soloQuery?.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); runSolo(); }});
+  els.midA?.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); runMiddle(); }});
+  els.midB?.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); runMiddle(); }});
 
-      <div class="budget-grid">
-        <div>
-          <label for="beerBudget">Max beer price</label>
-          <select id="beerBudget"></select>
-        </div>
-        <div>
-          <label for="cocktailBudget">Max cocktail price</label>
-          <select id="cocktailBudget"></select>
-        </div>
-      </div>
-    </section>
-
-    <section class="feature-grid">
-      <article class="feature card glass">
-        <h3>Starter coverage</h3>
-        <ul>
-          <li>Jersey City</li>
-          <li>Hoboken</li>
-          <li>Weehawken</li>
-          <li>Fort Lee</li>
-          <li>Hackensack</li>
-          <li>Fairview</li>
-          <li>Saddle Brook</li>
-          <li>Totowa</li>
-          <li>Montclair</li>
-          <li>Lyndhurst</li>
-          <li>West Orange</li>
-          <li>Morristown</li>
-        </ul>
-      </article>
-
-      <article class="feature card glass">
-        <h3>Search categories</h3>
-        <ul>
-          <li>Bars, lounges, pubs, taverns, dive bars</li>
-          <li>Sports bars, steakhouses, sushi, speakeasies</li>
-          <li>Italian, Portuguese, Spanish, Brazilian</li>
-          <li>Pool halls, billiards, bar arcades, live music</li>
-        </ul>
-      </article>
-    </section>
-
-    <section class="section card glass" id="plannerResultWrap">
-      <div class="section-head">
-        <h2>Planner result</h2>
-        <span id="plannerSummary">Choose a mode above.</span>
-      </div>
-      <div id="plannerResult" class="planner-box muted">
-        NightScout V4 Lite will show your area, midpoint, vibe summary, and suggested venues here.
-      </div>
-    </section>
-
-    <section class="section card glass">
-      <div class="section-head">
-        <h2>Venue matches</h2>
-        <span id="resultsCount">Loading venues</span>
-      </div>
-      <div id="venueList" class="venue-list"></div>
-    </section>
-  </div>
-
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYtelX2ShPOmrdE2xKHO_Djf8SV3Dl9gI&libraries=places,geometry"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+  renderSeedCities();
+  renderFilters();
+  renderResults();
+  setPlanner("NightScout V4 Lite loaded. Pick a mode and start building the night.", "Choose a mode above.");
+});
