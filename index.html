@@ -136,9 +136,8 @@
         <ul>
           <li>Meet-in-the-middle math with Google Geocoding</li>
           <li>Nearby venue search with Google Places</li>
-          <li>Manual event/rating layer stored on device</li>
-          <li>Backup venues near any result</li>
-          <li>Surprise picks and vibe guidance</li>
+          <li>Backup venues and surprise picks</li>
+          <li>Starter city fallback if Google fails</li>
         </ul>
       </article>
     </section>
@@ -149,7 +148,7 @@
         <span id="plannerSummary">Choose a mode above.</span>
       </div>
       <div id="plannerResult" class="planner-box muted">
-        NightScout V4 will show a meeting area, vibe summary, event notes, and suggested venues here.
+        NightScout V4 will show a meeting area, vibe summary, and suggested venues here.
       </div>
     </section>
 
@@ -161,21 +160,6 @@
       <div id="venueList" class="venue-list"></div>
     </section>
 
-    <template id="ratingTemplate">
-      <div class="rating-box">
-        <label>Rate this venue</label>
-        <select class="rating-select">
-          <option value="">Select rating</option>
-          <option>Loved it</option>
-          <option>Good</option>
-          <option>Just okay</option>
-          <option>Would not go back</option>
-        </select>
-        <textarea class="rating-note" rows="2" placeholder="Crowd attractive? Too many guys? Not enough women? Worth it?"></textarea>
-        <button type="button" class="save-rating">Save note</button>
-      </div>
-    </template>
-
     <nav class="bottom-nav glass">
       <button class="nav active">Tonight</button>
       <button class="nav">Meet up</button>
@@ -185,7 +169,7 @@
     </nav>
   </div>
 
- <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE&libraries=places,geometry"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYtelX2ShPOmrdE2xKHO_Djf8SV3Dl9gI&libraries=places,geometry"></script>
   <script src="app.js"></script>
 </body>
 </html>
