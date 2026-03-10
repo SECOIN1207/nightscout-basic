@@ -409,13 +409,35 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function lookupStarterMatches(query) {
-    const q = query.toLowerCase();
-    return VENUES.filter((v) =>
-      `${v.name} ${v.city} ${v.zip} ${v.address}`.toLowerCase().includes(q)
-    );
-  }
+  const q = query.toLowerCase();
+  return VENUES.filter((v) =>
+    `${v.name} ${v.city} ${v.zip} ${v.address}`.toLowerCase().includes(q)
+  );
+}
 
-  function findClosestStarterZone(lat, lng) {
+function geocodeAddress(address) {
+  return new Promise((resolve, reject) => {
+    if (!window.google || !google.maps || !google.maps.Geocoder) {
+      reject(new Error("Google Geocoder unavailable"));
+      return;
+    }
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ address }, (results, status) => {
+      if (status !== "OK" || !results?.[0]) {
+        reject(new Error(`Could not locate ${address}`));
+        return;
+      }
+      const loc = results[0].geometry.location;
+      resolve({
+        lat: loc.lat(),
+        lng: loc.lng(),
+        formatted: results[0].formatted_address
+      });
+    });
+  });
+}
+
+function findClosestStarterZone(lat, lng) {
   const starterZones = [
     { city: "Hackensack", lat: 40.8862, lng: -74.0435 },
     { city: "Fort Lee", lat: 40.8509, lng: -73.9701 },
@@ -499,36 +521,36 @@ function nearbyPlaces(center, radiusMeters = 7000) {
     );
   });
 }
-    const query = els.soloQuery?.value?.trim();
-    if (!query) {
-      setPlanner('Enter a ZIP, city, or address.', "Need a search");
-      return;
-    }
 
-    setPlanner(`Searching nightlife around "${query}"...`, "Solo search running");
-
-    const starter = lookupStarterMatches(query);
-    if (starter.length) {
-      activeVenues = starter;
-      renderResults();
-      setPlanner(`Found ${starter.length} starter venue match(es) around "${query}".`, "Starter match");
-      return;
-    }
-
-    try {
-      const center = await geocodeAddress(query);
-      const live = await nearbyPlaces(center, 7000);
-      activeVenues = live;
-      renderResults();
-      setPlanner(`Found live venues around "${center.formatted}".`, "Live search complete");
-    } catch (err) {
-      activeVenues = [...VENUES];
-      renderResults();
-      setPlanner(`Google search did not complete for "${query}". Showing starter NJ venues instead.`, "Starter fallback");
-    }
+async function runSolo() {
+  const query = els.soloQuery?.value?.trim();
+  if (!query) {
+    setPlanner('Enter a ZIP, city, or address.', "Need a search");
+    return;
   }
 
-  async function runMiddle() {
+  setPlanner(`Searching nightlife around "${query}"...`, "Solo search running");
+
+  const starter = lookupStarterMatches(query);
+  if (starter.length) {
+    activeVenues = starter;
+    renderResults();
+    setPlanner(`Found ${starter.length} starter venue match(es) around "${query}".`, "Starter match");
+    return;
+  }
+
+  try {
+    const center = await geocodeAddress(query);
+    const live = await nearbyPlaces(center, 7000);
+    activeVenues = live;
+    renderResults();
+    setPlanner(`Found live venues around "${center.formatted}".`, "Live search complete");
+  } catch (err) {
+    activeVenues = [...VENUES];
+    renderResults();
+    setPlanner(`Google search did not complete for "${query}". Showing starter NJ venues instead.`, "Starter fallback");
+  }
+}
   const a = els.midA?.value?.trim();
   const b = els.midB?.value?.trim();
 
