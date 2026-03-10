@@ -13,6 +13,38 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="icon-192.png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
+  <style>
+    #funFloating {
+      top: 12px !important;
+      left: 12px !important;
+      width: 84px;
+      height: 84px;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    #funFloating img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      background: #000 !important;
+    }
+
+    @media (max-width: 900px) {
+      #funFloating {
+        width: 76px;
+        height: 76px;
+      }
+    }
+  </style>
 </head>
 <body>
   <div id="funFloating" title="Surprise me">
@@ -43,7 +75,7 @@
 
       <div id="solo-mode" class="mode-panel active">
         <label for="soloQuery">City, state, ZIP, or “near me”</label>
-        <input id="soloQuery" placeholder="Hoboken NJ, 07022, Weehawken NJ, or near me" autocomplete="off" />
+        <input id="soloQuery" placeholder="Newark NJ, Hoboken NJ, 07102, or near me" autocomplete="off" />
         <div class="seed-row" id="seedCities"></div>
         <div class="button-row">
           <button type="button" class="primary" id="runSolo">Find venues</button>
@@ -73,7 +105,7 @@
 
       <div id="ai-mode" class="mode-panel">
         <label for="aiPrompt">Ask NightScout AI</label>
-        <textarea id="aiPrompt" rows="4" placeholder="Find a 40+ sports bar with cheap drinks and live music near Fort Lee tonight."></textarea>
+        <textarea id="aiPrompt" rows="4" placeholder="Find a 40+ sports bar with cheap drinks and live music in Fort Lee tonight."></textarea>
         <div class="button-row">
           <button type="button" class="primary" id="runAi">Build a plan</button>
         </div>
@@ -166,7 +198,7 @@
     <section class="section card glass">
       <div class="section-head">
         <h2>Venue matches</h2>
-        <span id="resultsCount">Loading starter venues</span>
+        <span id="resultsCount">Loading venues</span>
       </div>
       <div id="venueList" class="venue-list"></div>
     </section>
